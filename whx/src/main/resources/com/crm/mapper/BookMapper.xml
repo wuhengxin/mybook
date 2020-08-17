@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.crm.mapper.BookMapper">
+
+    <select id="selectAllBooks" resultType="com.crm.domain.Books">
+        select bId,bName,bAccount,bDescribe,bState from book
+        <where>
+            <if test="keyword !=null and keyword !='' and keyword !='undefined'">
+                bName LIKE "%"#{keyword}"%"
+            </if>
+        </where>
+    </select>
+
+    <select id="selectAllBooks2" resultType="com.crm.domain.Books">
+        select bId,bName,bAccount,bDescribe,bState from book
+        <where>
+            <if test="keyword1 !=null and keyword1 !='' and keyword1 !='undefined'">
+               AND bName LIKE "%"#{keyword1}"%"
+            </if>
+            <if test="keyword2 !=null and keyword2 !='' and keyword2 !='undefined'">
+                AND bState LIKE "%"#{keyword2}"%"
+            </if>
+        </where>
+    </select>
+
+    <insert id="insertBooks" parameterType="com.crm.domain.Books" >
+        insert into book(bId,bName,bAccount,bDescribe,bState)
+        values (#{bId,jdbcType=INTEGER},#{bName,jdbcType=VARCHAR},#{bAccount,jdbcType=VARCHAR},
+        #{bDescribe,jdbcType=VARCHAR},#{bState,jdbcType=INTEGER})
+    </insert>
+
+    <delete id="deleteBook" parameterType="java.lang.Long">
+        delete from book where bId=#{id,jdbcType=INTEGER}
+    </delete>
+
+    <update id="updateBooks" parameterType="com.crm.domain.Books">
+        update book
+        <trim prefix="set" suffixOverrides=",">
+            <if test="bName!=null">bName=#{bName,jdbcType=VARCHAR},</if>
+            <if test="bAccount!=null">bAccount=#{bAccount,jdbcType=VARCHAR},</if>
+            <if test="bDescribe!=null">BDescribe=#{bDescribe,jdbcType=VARCHAR},</if>
+            <if test="bState!=null">bState=#{bState,jdbcType=INTEGER},</if>
+        </trim>
+        where bId=#{bId,jdbcType=INTEGER}
+    </update>
+
+    <update id="updateBookAcount" parameterType="com.crm.domain.Books">
+        update book
+        <trim prefix="set" suffixOverrides=",">
+            <if test="bName!=null">bName=#{bName,jdbcType=VARCHAR},</if>
+            <if test="bAccount!=null">bAccount=#{bAccount,jdbcType=VARCHAR},</if>
+            <if test="bDescribe!=null">BDescribe=#{bDescribe,jdbcType=VARCHAR},</if>
+            <if test="bState!=null">bState=#{bState,jdbcType=INTEGER},</if>
+        </trim>
+        where bId=#{bId,jdbcType=INTEGER}
+    </update>
+</mapper>

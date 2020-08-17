@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.crm.mapper.BorrowBookMapper">
+    <resultMap id="BookRecord" type="com.crm.domain.BorrowBook">
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="account" property="account" jdbcType="INTEGER" />
+        <result column="state" property="state" jdbcType="INTEGER" />
+        <result column="createTime" property="createTime" jdbcType="TIMESTAMP" />
+        <result column="completionTime" property="completionTime" jdbcType="TIMESTAMP" />
+        <!--关联对象-->
+        <association property="books" javaType="Books">
+            <id column="book_id" property="bId"/>
+            <id column="book_name" property="bName"/>
+        </association>
+        <association property="employee" javaType="Employee">
+            <id column="employee_id" property="id"/>
+            <id column="employee_name" property="name"/>
+        </association>
+    </resultMap>
+    
+    <insert id="insertRecord" parameterType="com.crm.domain.BorrowBook" useGeneratedKeys="true" keyProperty="id">
+        insert into book_record (account,state,book_id,book_name,employee_id,employee_name,createTime)values (
+        #{account,jdbcType=INTEGER},#{state,jdbcType=INTEGER},#{books.bId,jdbcType=INTEGER},
+        #{books.bName,jdbcType=VARCHAR},#{employee.id,jdbcType=INTEGER},#{employee.name,jdbcType=VARCHAR},now()
+        )
+    </insert>
+
+    <update id="updateRecord" parameterType="com.crm.domain.BorrowBook" >
+        update book_record
+        <trim prefix="set" suffixOverrides=",">
+            <if test="account!=null">account=#{account,jdbcType=INTEGER},</if>
+            <if test="state!=null">state=#{state,jdbcType=INTEGER},</if>
+            <if test="books!=null">book_id=#{books.bId,jdbcType=INTEGER},</if>
+            <if test="employee!=null">employee_id=#{employee.id,jdbcType=INTEGER},</if>
+            <if test="completionTime!=null">completionTime=#{completionTime,jdbcType=TIMESTAMP},</if>
+        </trim>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <select id="selectAllRecord" resultMap="BookRecord">
+        select e.id, e.account, e.state,  p.id AS employee_id,p.name as employee_name,
+           e.createTime , d.bId AS book_id,d.bName AS book_name,completionTime
+    from book_record e JOIN book d ON e.book_id = d.bId
+                    JOIN employee p ON e.employee_id = p.id
+        <where>
+            <if test="keyword1 !=null and keyword1 !='' and keyword1 !='undefined'">
+                AND d.bName LIKE "%"#{keyword1}"%"
+            </if>
+            <if test="keyword2 !=null and keyword2 !='' and keyword2 !='undefined'">
+                AND p.name LIKE "%"#{keyword2}"%"
+            </if>
+        </where>
+    </select>
+
+    <select id="selectRecord" resultMap="BookRecord">
+        select e.id, e.account, e.state,  p.id AS employee_id,p.name as employee_name,
+           e.createTime , d.bId AS book_id,d.bName AS book_name,completionTime
+        from book_record e JOIN book d ON e.book_id = d.bId
+                    JOIN employee p ON e.employee_id = p.id
+        where e.state=#{keyword}
+    </select>
+
+    <!--<where>
+            <if test="keyword !=null and keyword !='' and keyword !='undefined'">
+                e.state=#{keyword}
+            </if>
+            <if test="keyword1 !=null and keyword1 !='' and keyword1 !='undefined'">
+                AND d.bName LIKE "%"#{keyword1}"%"
+            </if>
+            <if test="keyword2 !=null and keyword2 !='' and keyword2 !='undefined'">
+                AND p.name LIKE "%"#{keyword2}"%"
+            </if>
+        </where>-->
+</mapper>
+
